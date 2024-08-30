@@ -308,10 +308,10 @@
   },
   "push_sinks": [
     {
-      "#pointer": 20
+      "#pointer": 20 //对应的是 MDTrackerViewer
     },
     {
-      "#pointer": 10
+      "#pointer": 10 //对应的是 MDGraphManager
     }
   ],
   // topic of the pyramid to listen

@@ -48,8 +48,7 @@ namespace md_slam {
       public srrg2_solver::Factor_<srrg2_solver::VariablePtrTuple_<MDVariableSE3, MDVariableSE3>> {
   public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    using CloudMap =
-      std::map<std::pair<size_t, size_t>, MDMatrixCloud>;    // std::shared_ptr<MDMatrixCloud>>
+    using CloudMap = std::map<std::pair<size_t, size_t>, MDMatrixCloud>;    // std::shared_ptr<MDMatrixCloud>>
     using WorkspaceMap = std::map<uint8_t, WorkspaceSystem>; // allocate one workspace for level
     // populate H and b with measurments contributions
     MDFactorBivariable();

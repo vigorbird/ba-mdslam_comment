@@ -129,7 +129,9 @@ int main(int argc, char** argv) {
   std::cerr << std::endl
             << "_______________________________________________" << std::endl
             << std::endl;
-  const int n_devices = getDeviceInfo();
+  const int n_devices = getDeviceInfo();//函数里面本质是调用cuda接口，查询一共有多少个cuda设备可以使用！！
+
+  //要注意！！！作者这里的代码没有cuda是无法使用的！！！
   if (!n_devices) {
     std::cerr << std::string(environ[0]) + "|ERROR GPU not found, if you can't fix the problem "
                                            "checkout to our cpu branch version aborting"
@@ -267,8 +269,7 @@ int main(int argc, char** argv) {
   graph->variables().begin().value()->setStatus(VariableBase::Fixed);
 
   // check overlap between images
-  OverlapMap overlap_map = getOverlappingVariables(
-    mba_graph, dr.value(), dt.value(), overlap_threshold.value(), viz_overlap.isSet());
+  OverlapMap overlap_map = getOverlappingVariables( mba_graph, dr.value(), dt.value(), overlap_threshold.value(), viz_overlap.isSet());
   if (overlap_map.empty()) {
     std::cerr << "WARNING graph not augmented, optimization might fail!" << std::endl;
   }
@@ -398,7 +399,7 @@ int main(int argc, char** argv) {
             << " | n variables: " << mba_graph.variables().size()
             << " | n factors: " << mba_graph.factors().size() << std::endl
             << std::endl;
-}
+}//main 函数结束了！！！！
 
 /* TODO remove */
 void visualizeCorrespondingImages(MDPyramidLevel& li_,

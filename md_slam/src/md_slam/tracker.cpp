@@ -61,6 +61,8 @@ namespace md_slam {
     return true;
   }
 
+
+  //
   bool MDTrackerStandalone::putMessage(srrg2_core::BaseSensorMessagePtr msg_) {
     // if imu integrate batch of imu msgs and calculate abs orientation
     if (param_enable_imu.value()) {
@@ -189,7 +191,7 @@ namespace md_slam {
     // TransformEvent global_to_keyframe_r(
     //   _last_update_time, "/md_orientation", key_frame_rot, param_origin_frame_id.value());
     // transform_event->events.setValue(3, global_to_keyframe_r);
-    propagateMessage(transform_event);
+    propagateMessage(transform_event);//这个是srrg框架里面的东西！！！！
   }
 
 } // namespace md_slam

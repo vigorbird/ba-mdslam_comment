@@ -129,6 +129,7 @@ int main(int argc, char** argv) {
   }
 
   // retrieve the factor graph from the manager
+  //下面是启动三个主要功能模块：MDGraphManager MDTrackerStandalone MessageSortedSink！！！！！
   auto graph_manager = manager.getByName<md_slam::MDGraphManager>("graph_manager");
   if (!graph_manager) {
     std::cerr << std::string(environ[0]) +
@@ -137,14 +138,15 @@ int main(int argc, char** argv) {
   }
 
   // retrieve the tracker from the manager
-  auto tracker = manager.getByName<md_slam::MDTrackerStandalone>("tracker");
+  //需要额外注意！！MDTrackerStandalone这个名称和配置文件中的key相同！！！
+  auto tracker = manager.getByName<md_slam::MDTrackerStandalone>("tracker");//tracker这个变量后面没有被使用！！！
   if (!tracker) {
     std::cerr << std::string(environ[0]) +
                    "|ERROR, cannot find tracker, maybe wrong configuration path!"
               << std::endl;
   }
 
-  auto sink = manager.getByName<MessageSortedSink>("sink");
+  auto sink = manager.getByName<MessageSortedSink>("sink");//sink这个变量后面没有被使用！！！
   if (!sink) {
     std::cerr << std::string(environ[0]) +
                    "|ERROR, cannot find sink, maybe wrong configuration path!"
@@ -162,7 +164,7 @@ int main(int argc, char** argv) {
     std::cerr.rdbuf(NULL);
   }
 
-  source->open(bag_file.value());
+  source->open(bag_file.value());//非常重要！！！！！打开文件系统读取数据然后开始run
   if (!visualize.isSet()) {
     // run without viewing
     runner->compute();

@@ -64,6 +64,8 @@ namespace md_slam {
     return true;
   }
 
+
+  //
   bool MDGraphManager::putMessage(srrg2_core::BaseSensorMessagePtr msg_) {
     MDImagePyramidMessagePtr pyr_msg     = std::dynamic_pointer_cast<MDImagePyramidMessage>(msg_);
     MDTrackerStatusMessagePtr status_msg = std::dynamic_pointer_cast<MDTrackerStatusMessage>(msg_);
@@ -83,57 +85,57 @@ namespace md_slam {
         return false;
       }
       if (_status_msg->is_keyframe.value()) {
-        // std::cerr << "is keyframe: " << _status_msg->is_keyframe.value() << std::endl;
-        MDVariableSE3Ptr var(new MDVariableSE3);
-        var->setGraphId(_max_id);
-        // set initial var to fixed state
-        if (_max_id == 0) {
-          var->setStatus(VariableBase::Fixed);
-          // handling thread creation at the beginning
-          _closure_thread = std::thread(&MDGraphManager::closureCallback, this);
-          // if first time, init photometric aligner
-          if (param_pairwise_aligner.value()) {
-            param_pairwise_aligner.value()->setFixed(current);
-            param_pairwise_aligner.value()->initialize();
-          }
-        }
-        _max_id++;
-        var->setEstimate(_status_msg->global_pose.value());
-        var->setPyramid(new MDImagePyramid(*current));
+              // std::cerr << "is keyframe: " << _status_msg->is_keyframe.value() << std::endl;
+              MDVariableSE3Ptr var(new MDVariableSE3);
+              var->setGraphId(_max_id);
+              // set initial var to fixed state
+              if (_max_id == 0) {
+                var->setStatus(VariableBase::Fixed);
+                // handling thread creation at the beginning
+                _closure_thread = std::thread(&MDGraphManager::closureCallback, this);//整个代码就在这里启动了回环线程！！！！！！！！！
+                // if first time, init photometric aligner
+                if (param_pairwise_aligner.value()) {
+                  param_pairwise_aligner.value()->setFixed(current);
+                  param_pairwise_aligner.value()->initialize();
+                }
+              }
+              _max_id++;
+              var->setEstimate(_status_msg->global_pose.value());
+              var->setPyramid(new MDImagePyramid(*current));
 
-        _mutex.lock();
-        _graph->addVariable(var);
-        _mutex.unlock();
+              _mutex.lock();
+              _graph->addVariable(var);
+              _mutex.unlock();
 
-        if (_previous_variable) {
-          std::shared_ptr<SE3PosePoseGeodesicErrorFactor> f(new SE3PosePoseGeodesicErrorFactor);
-          f->setVariableId(0, _previous_variable->graphId());
-          f->setVariableId(1, var->graphId());
-          f->setMeasurement(_status_msg->local_pose.value());
-          f->setInformationMatrix(_status_msg->information_matrix.value());
-          // propagate estimate
-          var->setEstimate(_previous_variable->estimate() * _status_msg->local_pose.value());
-          _mutex.lock();
-          _graph->addFactor(f);
-          _mutex.unlock();
-        }
-        if (param_enable_closures.value()) {
-          _mutex.lock();
-          _variable_buffer_queue->push(var);
-          _mutex.unlock();
-        }
+              if (_previous_variable) {
+                std::shared_ptr<SE3PosePoseGeodesicErrorFactor> f(new SE3PosePoseGeodesicErrorFactor);
+                f->setVariableId(0, _previous_variable->graphId());
+                f->setVariableId(1, var->graphId());
+                f->setMeasurement(_status_msg->local_pose.value());
+                f->setInformationMatrix(_status_msg->information_matrix.value());
+                // propagate estimate
+                var->setEstimate(_previous_variable->estimate() * _status_msg->local_pose.value());
+                _mutex.lock();
+                _graph->addFactor(f);
+                _mutex.unlock();
+              }
+              if (param_enable_closures.value()) {
+                _mutex.lock();
+                _variable_buffer_queue->push(var);
+                _mutex.unlock();
+              }
 
-        _previous_variable = var;
-        this->_need_redraw = true;
-        this->draw();
-        // clear and reset stuff
-        _pyramid_msg.reset();
-        _status_msg.reset();
-        return true;
-      }
+              _previous_variable = var;
+              this->_need_redraw = true;
+              this->draw();
+              // clear and reset stuff
+              _pyramid_msg.reset();
+              _status_msg.reset();
+              return true;
+        }
     }
     return false;
-  }
+  }//end function putMessage
 
   void MDGraphManager::reset() {
     _pyramid_msg.reset();
@@ -144,6 +146,7 @@ namespace md_slam {
     _max_id = 0;
   }
 
+  //这个函数只在closureCallback中被调用！！！
   Matrix6f MDGraphManager::photometricClosure(Isometry3f& estimate_,
                                               MDImagePyramid* fixed_,
                                               MDImagePyramid* moving_) {

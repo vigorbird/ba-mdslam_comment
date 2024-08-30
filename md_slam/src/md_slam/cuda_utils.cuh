@@ -54,7 +54,7 @@ namespace md_slam {
   inline int getDeviceInfo() {
     int n_devices = 0;
     // int available_shmem = 0;
-    cudaGetDeviceCount(&n_devices);
+    cudaGetDeviceCount(&n_devices);//cuda接口函数 获取CUDA设备数
     // check for devices
     for (int i = 0; i < n_devices; ++i) {
       cudaDeviceProp prop;
